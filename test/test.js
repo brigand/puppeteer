@@ -1929,6 +1929,30 @@ describe('Page', function() {
       const screenshot = await elementHandle.screenshot();
       expect(screenshot).toBeGolden('screenshot-element-scrolled-into-view.png');
     });
+    fit('should screenshot element larger than current viewport', async({page, server}) => {
+      await page.setViewport({width: 500, height: 500});
+      await page.setContent(`
+        something above
+        <style>div.spacer {
+          border: 2px solid blue;
+          background: red;
+          height: 600px;
+        }
+        div.to-screenshot {
+          border: 2px solid blue;
+          background: green;
+          width: 50px;
+          height: 1000px;
+        }
+        </style>
+        <div class="spacer"></div>
+        <div class="to-screenshot"></div>
+        <div class="spacer"></div>
+      `);
+      const elementHandle = await page.$('div.to-screenshot');
+      const screenshot = await elementHandle.screenshot({ fullElement: false });
+      expect(screenshot).toBeGolden('screenshot-element-full-page.png');
+    });
     it('should work with a rotated element', async({page, server}) => {
       await page.setViewport({width: 500, height: 500});
       await page.setContent(`<div style="position:absolute;
